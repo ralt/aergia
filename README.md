@@ -92,6 +92,5 @@ Overridable values: PROJECT, TEST-COMMAND, PREFIX, IGNORE-FILE, PROJECT-PATH
 
 Personal todo on the project.
 
-- Better output for tests
 - Write tests
 - Rewrite the README.

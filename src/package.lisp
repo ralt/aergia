@@ -7,7 +7,7 @@
 (in-package #:aergia)
 
 (defvar *default-shell* "/bin/bash")
-(defvar *prefix* "common-lisp/")
+(defvar *prefix* "")
 (defvar *command* "make test")
 (defvar *ssh-identity* (concatenate 'string (uiop:getenv "HOME") "/.ssh/id_rsa"))
 

@@ -41,7 +41,7 @@
       (leave "The --username argument is required."))
     (let* ((clone-name (generate-clone-name clone))
 	   (project (first (last (pathname-directory (cat (sb-unix:posix-getcwd) "/")))))
-	   (project-remote-path (merge-pathnames project (cat "/home/" username "/" *prefix*))))
+	   (project-remote-path (merge-pathnames project (cat "/home/" username "/" *prefix* "/"))))
       (values clone username clone-name project-remote-path))))
 
 (defun cat (&rest args)

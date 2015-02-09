@@ -4,7 +4,7 @@
   "Clones an LXC with an overlayfs backing store"
   (say (cat "Cloning " base "... "))
   (clean-run
-      (cat "An error occured when cloning " base ". Please review the error message above.")
+      (cat "An error occured when cloning " base ".")
     "lxc-clone" "--snapshot"
     "--orig" base
     "--new" clone-name
@@ -15,7 +15,7 @@
   "Starts an LXC"
   (say "Starting the short-lived container... ")
   (clean-run
-      (cat "An error occured when starting " name ". Please review the error message above.")
+      (cat "An error occured when starting " name ".")
     "lxc-start" "--name" name)
   (say-green "done.~%"))
 
@@ -30,7 +30,7 @@
       (cl-ppcre:scan-to-strings
        "IP:\\s*(\\d+\\.\\d+\\.\\d+\\.\\d+)"
        (clean-run
-	   (cat "An error occured when getting information about " name ". Please review the error message above.")
+	   (cat "An error occured when getting information about " name ".")
 	 "lxc-info" "--name" name))
     (declare (ignore _))
     ;; Leave enough time for:
@@ -47,12 +47,12 @@
   "Synchronizes the project sources with a defined folder in the container"
   (say "Creating remote project folder... ")
   (clean-run
-      (cat "An error occured when connecting to " username "@" ip ". Please review the error message above.")
+      (cat "An error occured when connecting to " username "@" ip ".")
     "ssh" "-o" "StrictHostKeyChecking=no" "-i" ssh-identity (cat username "@" ip) "mkdir" "-p" (namestring project-remote-path))
   (say-green "done.~%")
   (say "Synchronizing sources... ")
   (clean-run
-      (cat "There was an error synchronizing with " username "@" ip ". Please review the error message above.")
+      (cat "There was an error synchronizing with " username "@" ip ".")
     "scp" "-o" "StrictHostKeyChecking=no" "-i" "/home/florian/.ssh/id_rsa" "-r" "." (cat username "@" ip ":" (namestring project-remote-path)))
   (say-green "done.~%"))
 
@@ -60,7 +60,7 @@
   "Runs tests in a container"
   (say "Running tests... ")
   (clean-run
-      (cat "An error occured when running tests on " username "@" ip ":" (namestring project-remote-path) ". Please review the error message above.")
+      (cat "An error occured when running tests on " username "@" ip ":" (namestring project-remote-path) ".")
     "ssh" "-o" "StrictHostKeyChecking=no" "-i" ssh-identity (cat username "@" ip) "cd" project-remote-path ";" command)
   (say-green "done.~%"))
 
@@ -71,15 +71,15 @@
 	  (cl-ppcre:all-matches-as-strings
 	   (cat "test-" name "-\\d+")
 	   (clean-run
-	       "An error occured when trying to list containers. Please review the error message above."
+	       "An error occured when trying to list containers."
 	     "lxc-ls")))
   (say-green "done.~%"))
 
 (defun lxc-destroy (name)
   "Destroys an LXC"
   (clean-run
-      (cat "An error occured when stopping " name ". Please review the error message above.")
+      (cat "An error occured when stopping " name ".")
     "lxc-stop" "--name" name)
   (clean-run
-      (cat "An error occured when destroying " name ". Please review the error message above.")
+      (cat "An error occured when destroying " name ".")
     "lxc-destroy" "--name" name))

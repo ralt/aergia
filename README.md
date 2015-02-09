@@ -87,3 +87,21 @@ Default values:
 - TEST-COMMAND: `make test`
 
 Overridable values: PROJECT, TEST-COMMAND, PREFIX, IGNORE-FILE, PROJECT-PATH
+
+## To be done
+
+Personal todo on the project.
+
+- Write the run-tests function. Actually, do something like this in `main`:
+
+```lisp
+(synchronize-code)
+(run-tests)
+```
+
+- Really cleanup. i.e. look for existing containers and delete all of them.
+- Try getting the container's IP every second for 20 seconds
+- Show messages about progress (^ could display a "." every second. Use (force-output)).
+- Refactor the main function
+- Write tests
+- Rewrite the README.

@@ -104,5 +104,6 @@ Personal todo on the project.
 - Show messages about progress (^ could display a "." every
   second. Use (force-output)). Use colors for tests.
 - Refactor the main function
+- Make overridable variables
 - Write tests
 - Rewrite the README.

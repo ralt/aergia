@@ -1,7 +1,7 @@
 (defpackage #:aergia
   (:use #:cl)
   (:export :main)
-  (:import-from :cl-ansi-text with-color))
+  (:import-from :cl-ansi-text :with-color))
 
 ;;;; Define macros here because this file is the first compiled one
 (in-package #:aergia)

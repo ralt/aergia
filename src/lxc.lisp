@@ -9,7 +9,7 @@
     "--orig" base
     "--new" clone-name
     "--backingstore" "overlayfs")
-  (say "done.~%"))
+  (say-green "done.~%"))
 
 (defun lxc-start (name)
   "Starts an LXC"
@@ -17,7 +17,7 @@
   (clean-run
       (cat "An error occured when starting " name ". Please review the error message above.")
     "lxc-start" "--name" name)
-  (say "done.~%"))
+  (say-green "done.~%"))
 
 (defun lxc-get-ip (name &optional (acc 0))
   "Gets the IP of a running LXC"
@@ -39,7 +39,7 @@
     (sleep 1)
     (if (> (length groups) 0)
 	(progn
-	  (say " done.~%")
+	  (say-green " done.~%")
 	  (elt groups 0))
 	(lxc-get-ip name (1+ acc)))))
 
@@ -49,12 +49,12 @@
   (clean-run
       (cat "An error occured when connecting to " username "@" ip ". Please review the error message above.")
     "ssh" "-o" "StrictHostKeyChecking=no" "-i" ssh-identity (cat username "@" ip) "mkdir" "-p" (namestring project-remote-path))
-  (say "done.~%")
+  (say-green "done.~%")
   (say "Synchronizing sources... ")
   (clean-run
       (cat "There was an error synchronizing with " username "@" ip ". Please review the error message above.")
     "scp" "-o" "StrictHostKeyChecking=no" "-i" "/home/florian/.ssh/id_rsa" "-r" "." (cat username "@" ip ":" (namestring project-remote-path)))
-  (say "done.~%"))
+  (say-green "done.~%"))
 
 (defun lxc-run-tests (username ip project-remote-path ssh-identity command)
   "Runs tests in a container"
@@ -62,7 +62,7 @@
   (clean-run
       (cat "An error occured when running tests on " username "@" ip ". Please review the error message above.")
     "ssh" "-o" "StrictHostKeyChecking=no" "-i" ssh-identity (cat username "@" ip) "cd" project-remote-path ";" command)
-  (say "done.~%"))
+  (say-green "done.~%"))
 
 (defun lxc-cleanup (name)
   "Finds all the test-NAME-* containers and destroy them"
@@ -73,7 +73,7 @@
 	   (clean-run
 	       "An error occured when trying to list containers. Please review the error message above."
 	     "lxc-ls")))
-  (say "done.~%"))
+  (say-green "done.~%"))
 
 (defun lxc-destroy (name)
   "Destroys an LXC"

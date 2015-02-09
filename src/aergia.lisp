@@ -41,10 +41,10 @@
   "Generates a name for the container. Template: test-CLONE-TIMESTAMP"
   (cat "test-" clone "-" (write-to-string (get-universal-time))))
 
-(defun leave (message)
+(defun leave (message &key (code 1))
   "Quits the application with a message"
-  (format t "~A~%" message)
-  (sb-ext:exit :code 1))
+  (say-red (cat message "~%"))
+  (sb-ext:exit :code code))
 
 (defun get-arg (args arg)
   "Finds the argument in the list of arguments"
@@ -53,5 +53,14 @@
 		args)))
 
 (defun say (message)
+  "Outputs a message immediately on the screen"
   (format t message)
   (force-output))
+
+(defun say-green (message)
+  "Outputs a green message"
+  (say message))
+
+(defun say-red (message)
+  "Outputs a red message"
+  (say message))

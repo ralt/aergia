@@ -26,10 +26,20 @@
     (declare (ignore _))
     (elt groups 0)))
 
-(defun lxc-run-tests (username ip ignore-file prefix project command)
+(defun lxc-synchronize-project (username ip project-remote-path ssh-identity)
+  "Synchronizes the project sources with a defined folder in the container"
+  (clean-run
+      (cat "An error occured when connecting to " username "@" ip ". Please review the error message above.")
+    "ssh" "-o" "StrictHostKeyChecking=no" "-i" ssh-identity (cat username "@" ip) "mkdir" "-p" (namestring project-remote-path))
+  (clean-run
+      (cat "There was an error synchronizing with " username "@" ip ". Please review the error message above.")
+    "scp" "-o" "StrictHostKeyChecking=no" "-i" "/home/florian/.ssh/id_rsa" "-r" "." (cat username "@" ip ":" (namestring project-remote-path))))
+
+(defun lxc-run-tests (username ip project-remote-path ssh-identity command)
   "Runs tests in a container"
-  ;; Just show that all the variables are available
-  (format t "~A@~A ~A ~~/~A~A ~A~%" username ip ignore-file prefix project command))
+  (clean-run
+      (cat "An error occured when running tests. Please review the error message above.")
+    "ssh" "-o" "StrictHostKeyChecking=no" "-i" ssh-identity (cat username "@" ip) "cd" project-remote-path ";" command))
 
 (defun lxc-destroy (name)
   "Destroys an LXC"

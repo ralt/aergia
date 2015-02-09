@@ -101,7 +101,8 @@ Personal todo on the project.
 
 - Really cleanup. i.e. look for existing containers and delete all of them.
 - Try getting the container's IP every second for 20 seconds
-- Show messages about progress (^ could display a "." every second. Use (force-output)).
+- Show messages about progress (^ could display a "." every
+  second. Use (force-output)). Use colors for tests.
 - Refactor the main function
 - Write tests
 - Rewrite the README.

@@ -5,8 +5,10 @@
   :serial t
   :depends-on ("external-program" ;; run shell commands
 	       "cl-ppcre" ;; parse shell commands outputs
-	       "sb-posix") ;; get version
+	       "sb-posix" ;; get version
+	       "getopt") ;; parse CLI options
   :components ((:module "src"
 			:components
 			((:file "package")
+			 (:file "lxc")
 			 (:file "aergia")))))

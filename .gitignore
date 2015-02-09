@@ -1,0 +1,6 @@
+.quicklocal/
+bin/
+deps
+dist/
+install-deps
+quicklisp.lisp

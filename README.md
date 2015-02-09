@@ -54,7 +54,7 @@ For example, with the following variables:
 lxc-create -n test-lxc-wrapper-20150208120112 -B overlayfs -t ubuntu -- -S ~/.ssh/id_rsa.pub
 lxc-start -n test-lxc-wrapper-20150208120112
 lxc-info -n test-lxc-wrapper-20150208120112 | grep 'IP:' | awk '{print $2;}' # get $IP
-ssh test-lxc-wrapper-20150208120112@$IP "mkdir -p ~/common-lisp/lxc-wrapper" \
+ssh ubuntu@$IP "mkdir -p ~/common-lisp/lxc-wrapper" \
 	&& rsync -avz --filter=':- .gitignore' . ubuntu@$IP:~/common-lisp/lxc-wrapper \
 	&& ssh ubuntu@$IP "cd ~/common-lisp/lxc-wrapper; make test"
 if [ $? == 0 ]; then

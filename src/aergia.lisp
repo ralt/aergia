@@ -32,7 +32,7 @@
 	(let ((ip (lxc-get-ip clone-name)))
 	  (lxc-synchronize-project username ip project-remote-path *ssh-identity*)
 	  (lxc-run-tests username ip project-remote-path *ssh-identity* *command*)
-	  (lxc-destroy clone-name))))))
+	  (lxc-cleanup clone))))))
 
 (defun cat (&rest args)
   (apply #'concatenate 'string args))

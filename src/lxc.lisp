@@ -38,8 +38,17 @@
 (defun lxc-run-tests (username ip project-remote-path ssh-identity command)
   "Runs tests in a container"
   (clean-run
-      (cat "An error occured when running tests. Please review the error message above.")
+      (cat "An error occured when running tests on " username "@" ip ". Please review the error message above.")
     "ssh" "-o" "StrictHostKeyChecking=no" "-i" ssh-identity (cat username "@" ip) "cd" project-remote-path ";" command))
+
+(defun lxc-cleanup (name)
+  "Finds all the test-NAME-* containers and destroy them"
+  (mapcar #'lxc-destroy
+	  (cl-ppcre:all-matches-as-strings
+	   (cat "test-" name "-\\d+")
+	   (clean-run
+	       "An error occured when trying to list containers. Please review the error message above."
+	     "lxc-ls"))))
 
 (defun lxc-destroy (name)
   "Destroys an LXC"

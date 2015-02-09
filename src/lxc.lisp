@@ -15,8 +15,10 @@
       (cat "An error occured when starting " name ". Please review the error message above.")
     "lxc-start" "--name" name))
 
-(defun lxc-get-ip (name)
+(defun lxc-get-ip (name &optional (acc 0))
   "Gets the IP of a running LXC"
+  (when (= acc 20)
+    (leave "Could not retrieve the container's IP after 20 trials. Please check the configuration."))
   (multiple-value-bind (_ groups)
       (cl-ppcre:scan-to-strings
        "IP:\\s*(\\d+\\.\\d+\\.\\d+\\.\\d+)"
@@ -24,7 +26,13 @@
 	   (cat "An error occured when getting information about " name ". Please review the error message above.")
 	 "lxc-info" "--name" name))
     (declare (ignore _))
-    (elt groups 0)))
+    ;; Leave enough time for:
+    ;; - if the IP is found, for ssh to start
+    ;; - if the IP is not found, for another trial
+    (sleep 1)
+    (if (> (length groups) 0)
+	(elt groups 0)
+	(lxc-get-ip name (1+ acc)))))
 
 (defun lxc-synchronize-project (username ip project-remote-path ssh-identity)
   "Synchronizes the project sources with a defined folder in the container"

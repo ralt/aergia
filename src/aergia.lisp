@@ -26,9 +26,6 @@
 	     (project-remote-path (merge-pathnames project (cat "/home/" username "/" *prefix*))))
 	(lxc-clone clone clone-name)
 	(lxc-start clone-name)
-	(sleep 5) ; give some time to the container to get an IP
-	;; How did I know that it was 5 seconds? Practice.
-	;; Rewrite this to try getting it every second though
 	(let ((ip (lxc-get-ip clone-name)))
 	  (lxc-synchronize-project username ip project-remote-path *ssh-identity*)
 	  (lxc-run-tests username ip project-remote-path *ssh-identity* *command*)

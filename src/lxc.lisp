@@ -60,7 +60,7 @@
   "Runs tests in a container"
   (say "Running tests... ")
   (clean-run
-      (cat "An error occured when running tests on " username "@" ip ". Please review the error message above.")
+      (cat "An error occured when running tests on " username "@" ip ":" (namestring project-remote-path) ". Please review the error message above.")
     "ssh" "-o" "StrictHostKeyChecking=no" "-i" ssh-identity (cat username "@" ip) "cd" project-remote-path ";" command)
   (say-green "done.~%"))
 

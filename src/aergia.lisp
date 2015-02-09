@@ -1,25 +1,30 @@
 (in-package #:aergia)
 
-(defvar *default-shell* "/bin/bash")
-(defvar *prefix* "common-lisp/")
-(defvar *command* "make test")
-(defvar *ssh-identity* (concatenate 'string "/home/" (uiop:getenv "USER") "/.ssh/id_rsa"))
-
 (defun main (args)
   "Application's entry point"
   (multiple-value-bind (commands arguments not-implemented)
       (getopt:getopt args
 		     '(("clone" :required) ; the container to clone
-		       ("username" :required))) ; the username of the container
+		       ("username" :required) ; the username of the container
+		       ; Overridable variables
+		       ("command" :optional)
+		       ("default-shell" :optional)
+		       ("prefix" :optional)
+		       ("ssh-identity" :optional)))
     (declare (ignore commands))
     (multiple-value-bind (clone username clone-name project-remote-path)
 	(handle-arguments arguments not-implemented)
-      (lxc-clone clone clone-name)
-      (lxc-start clone-name)
-      (let ((ip (lxc-get-ip clone-name)))
-	(lxc-synchronize-project username ip project-remote-path *ssh-identity*)
-	(lxc-run-tests username ip project-remote-path *ssh-identity* *command*)
-	(lxc-cleanup clone)))))
+      (default-variables-let arguments
+	  (*default-shell*
+	   *prefix*
+	   *command*
+	   *ssh-identity*)
+	(lxc-clone clone clone-name)
+	(lxc-start clone-name)
+	(let ((ip (lxc-get-ip clone-name)))
+	  (lxc-synchronize-project username ip project-remote-path *ssh-identity*)
+	  (lxc-run-tests username ip project-remote-path *ssh-identity* *command*)
+	  (lxc-cleanup clone))))))
 
 (defun handle-arguments (arguments not-implemented)
   "Handles the nitty-gritty of the arguments stuff"
@@ -72,3 +77,7 @@
 (defun say-red (message)
   "Outputs a red message"
   (say message))
+
+(defun clean-stars (var)
+  "Removes the stars from a string"
+  (cl-ppcre:regex-replace-all "\\*" var ""))

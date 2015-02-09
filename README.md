@@ -92,7 +92,7 @@ Overridable values: PROJECT, TEST-COMMAND, PREFIX, IGNORE-FILE, PROJECT-PATH
 
 Personal todo on the project.
 
-- Use terminal colors (70%)
+- Use terminal colors (70%) (use cl-ansi-text)
 - Make overridable variables
 - Write tests
 - Rewrite the README.

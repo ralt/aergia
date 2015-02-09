@@ -6,6 +6,7 @@
   :depends-on ("external-program" ;; run shell commands
 	       "cl-ppcre" ;; parse shell commands outputs
 	       "getopt" ;; parse CLI options
+	       "sb-posix" ;; version
 	       "cl-ansi-text") ;; terminal colors
   :in-order-to ((asdf:test-op (asdf:test-op #:aergia-test)))
   :components ((:module "src"

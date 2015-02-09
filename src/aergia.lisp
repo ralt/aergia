@@ -6,6 +6,8 @@
       (getopt:getopt args
 		     '(("clone" :required) ; the container to clone
 		       ("username" :required) ; the username of the container
+		       ("help" :none)
+		       ("version" :none)
 		       ; Overridable variables
 		       ("command" :optional)
 		       ("default-shell" :optional)
@@ -33,6 +35,12 @@
 		(when (> (length not-implemented) 1) "s")
 		": " (reduce #'cat-with-spaces
 			     not-implemented))))
+  (when (has-none-arg arguments "version")
+    (let ((cl-ansi-text:*enabled* nil))
+      (leave (version) :code 0)))
+  (when (has-none-arg arguments "help")
+    (let ((cl-ansi-text:*enabled* nil))
+      (leave (help) :code 0)))
   (let ((clone (get-arg arguments "clone"))
 	(username (get-arg arguments "username")))
     (unless clone
@@ -65,6 +73,10 @@
 		    (string= (car pair) arg))
 		args)))
 
+(defun has-none-arg (args arg)
+  "Returns T if the none arg was provided"
+  (some #'(lambda (v) (string= (car v) arg)) args))
+
 (defun say (message)
   "Outputs a message immediately on the screen"
   (format t message)
@@ -83,3 +95,48 @@
 (defun clean-stars (var)
   "Removes the stars from a string"
   (cl-ppcre:regex-replace-all "\\*" var ""))
+
+(defun version ()
+  "Returns the version"
+  (cat "aergia " (load-time-value (sb-posix:getenv "VERSION"))))
+
+(defun help ()
+  "Returns the help"
+  "Usage: aergia --clone BASE --username USERNAME [OPTIONS]
+
+aergia uses short-lived containers to run tests on it.
+
+Required arguments:
+
+	--clone
+		The base container to clone when creating testing containers.
+
+	--username
+		The username to use when connecting to the testing container.
+		This username must have a password-less SSH authentication.
+
+Options:
+
+	--help
+		Shows this help.
+
+	--version
+		Shows aergia's version.
+
+	--default-shell
+		Default value: /bin/bash
+		Changes the default shell used to run commands.
+
+	--prefix
+		Default value: none
+		Adds a prefix to the remote project path.
+
+	--command
+		Default value: make test
+		Changes the commands to run the tests.
+
+	--ssh-identity
+		Default value: $HOME/.ssh/id_rsa
+		Changes the identity used to connect to the test containers.
+
+Online help: <https://github.com/Ralt/aergia>")

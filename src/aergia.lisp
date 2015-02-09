@@ -72,11 +72,13 @@
 
 (defun say-green (message)
   "Outputs a green message"
-  (say message))
+  (with-color (:green)
+    (say message)))
 
 (defun say-red (message)
   "Outputs a red message"
-  (say message))
+  (with-color (:red)
+    (say message)))
 
 (defun clean-stars (var)
   "Removes the stars from a string"

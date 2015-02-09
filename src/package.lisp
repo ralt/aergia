@@ -1,6 +1,7 @@
 (defpackage #:aergia
   (:use #:cl)
-  (:export :main))
+  (:export :main)
+  (:import-from :cl-ansi-text with-color))
 
 ;;;; Define macros here because this file is the first compiled one
 (in-package #:aergia)
@@ -8,7 +9,7 @@
 (defvar *default-shell* "/bin/bash")
 (defvar *prefix* "common-lisp/")
 (defvar *command* "make test")
-(defvar *ssh-identity* (concatenate 'string "/home/" (uiop:getenv "USER") "/.ssh/id_rsa"))
+(defvar *ssh-identity* (concatenate 'string (uiop:getenv "HOME") "/.ssh/id_rsa"))
 
 (defmacro run (stream &body command)
   "Runs a command. To avoid having an awkward API

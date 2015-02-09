@@ -5,7 +5,8 @@
   :serial t
   :depends-on ("external-program" ;; run shell commands
 	       "cl-ppcre" ;; parse shell commands outputs
-	       "getopt") ;; parse CLI options
+	       "getopt" ;; parse CLI options
+	       "cl-ansi-text") ;; terminal colors
   :in-order-to ((asdf:test-op (asdf:test-op #:aergia-test)))
   :components ((:module "src"
 			:components

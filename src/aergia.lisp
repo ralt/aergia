@@ -12,24 +12,32 @@
 		     '(("clone" :required) ; the container to clone
 		       ("username" :required))) ; the username of the container
     (declare (ignore commands))
-    (when not-implemented
-      (leave (cat "Not implemented argument(s): " (reduce #'cat-with-spaces
-							  not-implemented))))
-    (let ((clone (get-arg arguments "clone"))
-	  (username (get-arg arguments "username")))
-      (unless clone
-	(leave "The --clone argument is required."))
-      (unless username
-	(leave "The --username argument is required."))
-      (let* ((clone-name (generate-clone-name clone))
-	     (project (first (last (pathname-directory (cat (sb-unix:posix-getcwd) "/")))))
-	     (project-remote-path (merge-pathnames project (cat "/home/" username "/" *prefix*))))
-	(lxc-clone clone clone-name)
-	(lxc-start clone-name)
-	(let ((ip (lxc-get-ip clone-name)))
-	  (lxc-synchronize-project username ip project-remote-path *ssh-identity*)
-	  (lxc-run-tests username ip project-remote-path *ssh-identity* *command*)
-	  (lxc-cleanup clone))))))
+    (multiple-value-bind (clone username clone-name project-remote-path)
+	(handle-arguments arguments not-implemented)
+      (lxc-clone clone clone-name)
+      (lxc-start clone-name)
+      (let ((ip (lxc-get-ip clone-name)))
+	(lxc-synchronize-project username ip project-remote-path *ssh-identity*)
+	(lxc-run-tests username ip project-remote-path *ssh-identity* *command*)
+	(lxc-cleanup clone)))))
+
+(defun handle-arguments (arguments not-implemented)
+  "Handles the nitty-gritty of the arguments stuff"
+  (when not-implemented
+    (leave (cat "Unavailable argument"
+		(when (> (length not-implemented) 1) "s")
+		": " (reduce #'cat-with-spaces
+			     not-implemented))))
+  (let ((clone (get-arg arguments "clone"))
+	(username (get-arg arguments "username")))
+    (unless clone
+      (leave "The --clone argument is required."))
+    (unless username
+      (leave "The --username argument is required."))
+    (let* ((clone-name (generate-clone-name clone))
+	   (project (first (last (pathname-directory (cat (sb-unix:posix-getcwd) "/")))))
+	   (project-remote-path (merge-pathnames project (cat "/home/" username "/" *prefix*))))
+      (values clone username clone-name project-remote-path))))
 
 (defun cat (&rest args)
   (apply #'concatenate 'string args))

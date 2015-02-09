@@ -5,8 +5,8 @@
   :serial t
   :depends-on ("external-program" ;; run shell commands
 	       "cl-ppcre" ;; parse shell commands outputs
-	       "sb-posix" ;; get version
 	       "getopt") ;; parse CLI options
+  :in-order-to ((asdf:test-op (asdf:test-op #:aergia-test)))
   :components ((:module "src"
 			:components
 			((:file "package")

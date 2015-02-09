@@ -20,6 +20,9 @@ all: $(APP_OUT)
 test: $(TEST_SOURCES) $(QL_LOCAL)/setup.lisp install-deps
 	@sbcl $(QL_OPTS) \
 		--eval '(ql:quickload :fiveam)' \
+		--eval '(setf fiveam:*debug-on-error* t)' \
+		--eval '(setf fiveam:*debug-on-failure* t)' \
+		--eval '(setf *debugger-hook* (lambda (c h) (declare (ignore c h)) (uiop:quit -1)))' \
 		--eval '(ql:quickload :aergia)' \
 		--eval '(asdf:test-system :aergia)' \
 		--quit

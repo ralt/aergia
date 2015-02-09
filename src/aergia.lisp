@@ -51,3 +51,7 @@
   (cdr (find-if #'(lambda (pair)
 		    (string= (car pair) arg))
 		args)))
+
+(defun say (message)
+  (format t message)
+  (force-output))

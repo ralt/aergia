@@ -92,8 +92,7 @@ Overridable values: PROJECT, TEST-COMMAND, PREFIX, IGNORE-FILE, PROJECT-PATH
 
 Personal todo on the project.
 
-- Show messages about progress (^ could display a "." every
-  second. Use (force-output)). Use colors for tests.
+- Use terminal colors
 - Refactor the main function
 - Make overridable variables
 - Write tests

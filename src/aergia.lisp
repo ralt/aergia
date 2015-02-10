@@ -14,13 +14,13 @@
 		       ("prefix" :optional)
 		       ("ssh-identity" :optional)))
     (declare (ignore commands))
-    (multiple-value-bind (clone username clone-name project-remote-path)
-	(handle-arguments arguments not-implemented)
-      (default-variables-let arguments
-	  (*default-shell*
-	   *prefix*
-	   *command*
-	   *ssh-identity*)
+    (default-variables-let arguments
+	(*default-shell*
+	 *prefix*
+	 *command*
+	 *ssh-identity*)
+      (multiple-value-bind (clone username clone-name project-remote-path)
+	  (handle-arguments arguments not-implemented)
 	(lxc-clone clone clone-name)
 	(lxc-start clone-name)
 	(let ((ip (lxc-get-ip clone-name)))
@@ -139,4 +139,5 @@ Options:
 		Default value: $HOME/.ssh/id_rsa
 		Changes the identity used to connect to the test containers.
 
-Online help: <https://github.com/Ralt/aergia>")
+Online help: <https://github.com/Ralt/aergia>
+For complete documentation, run: man aergia")

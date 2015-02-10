@@ -2,95 +2,211 @@
 
 Uses LXC to run short-lived containers and run tests on it.
 
-No code yet.
+## What
 
-## Roadmap
+When you need to run tests in an isolated environment, aergia is for
+you.
 
-Will support:
+aergia will create a short-lived container based on another one, push
+your code onto it, and run tests on it.
 
-- Based on templates
-- Based on clones
+If the tests fail, the container is still there for you to debug. If
+the tests pass, the containers used to run the tests will be deleted.
 
-The container needs to have at least: `rsync`, `ssh`
+Ever wanted to run travis locally? Just setup the correct base
+container for your project, and you'll be set.
 
-Your container (whether it's based on a template or is a clone) will
-need to have the required configuration installed. For example, it's
-often a good idea to have sudo NOPASSWD for the test runner
-user. Another example is installing the necessary packages once,
-instead of every time you run the tests.
+## How
 
-If you want to mimic travis CI, it's possible to mimic a default
-container based on the list of packages installed by default provided
-[here](http://docs.travis-ci.com/user/ci-environment/). However, be
-aware that `aergia` doesn't handle the `.travis.yml` file. (Which
-means that if your testing depends on settings defined in it, you have
-to set them manually in the `aergia` process.)
+You have to define a base container, usually with the necessary
+packages for the tests to be run. For example, most tests require
+`make`.
 
-```
-lxc-create -n test-PROJECT-TIMESTAMP -B overlayfs -t TEMPLATE -- -S SSH-KEY
-lxc-start -n test-PROJECT-TIMESTAMP
-lxc-info -n test-PROJECT-TIMESTAMP | grep 'IP:' | awk '{print $2;}' # get $IP
-ssh TEMPLATE-USERNAME@$IP "mkdir -p ~/[PREFIX]PROJECT" && rsync -avz --filter=':- IGNORE_FILE' PROJECT-PATH TEMPLATE-USERNAME@$IP:~/[PREFIX]PROJECT && ssh TEMPLATE-USERNAME@$IP "cd ~/[PREFIX]PROJECT; TEST-COMMAND"
-if [ $? == 0 ]; then
-	lxc-stop test-PROJECT-TIMESTAMP
-	lxc-destroy test-PROJECT-TIMESTAMP
-	aergia cleanup PROJECT
-fi
-```
+You also need a password-less SSH authentication to this container.
 
-For example, with the following variables:
-
-- TEMPLATE: `ubuntu`
-- PROJECT-TIMESTAMP: `lxc-wrapper-20150208120112`
-- SSH-KEY: `~/.ssh/id_rsa.pub`
-- TEMPLATE-USERNAME: `ubuntu`
-- PREFIX: `common-lisp/`
-- PROJECT: `lxc-wrapper`
-- TEST-COMMAND: `make test`
-- IGNORE-FILE: `.gitignore`
-- PROJECT-PATH: `.`
+As an example, here is how the base container for aergia is created:
 
 ```
-lxc-create -n test-lxc-wrapper-20150208120112 -B overlayfs -t ubuntu -- -S ~/.ssh/id_rsa.pub
-lxc-start -n test-lxc-wrapper-20150208120112
-lxc-info -n test-lxc-wrapper-20150208120112 | grep 'IP:' | awk '{print $2;}' # get $IP
-ssh ubuntu@$IP "mkdir -p ~/common-lisp/lxc-wrapper" \
-	&& rsync -avz --filter=':- .gitignore' . ubuntu@$IP:~/common-lisp/lxc-wrapper \
-	&& ssh ubuntu@$IP "cd ~/common-lisp/lxc-wrapper; make test"
-if [ $? == 0 ]; then
-	lxc-stop test-lxc-wrapper-20150208120112
-	lxc-destroy test-lxc-wrapper-20150208120112
-	aergia cleanup PROJECT
-fi
+$ lxc-create --name aergia \
+	--template ubuntu -- \
+	-S ~/.ssh/id_rsa.pub \
+	--packages make,sbcl
 ```
 
-`aergia cleanup PROJECT` looks for all the remnants containers of
-`PROJECT` and deletes them.
+aergia will then use this base and create an overlayfs-based container
+to run tests on. Being overlayfs-based means that only delta changes
+to the filesystem are written.
 
-This means that as long as the tests fail, you can connect to the
-container and debug the failure.
+## Usage
 
-An option shall exist to *not* delete the container. You have to think
-about executing `aergia cleanup PROJECT` manually though, or run
-passing tests without the option.
+```
+$ aergia --help
+Usage: aergia --clone BASE --username USERNAME [OPTIONS]
 
-Required:
+aergia uses short-lived containers to run tests on it.
 
-- (or (and "template" "template arguments (i.e. (or `-S ~/.ssh/id_rsa.pub`
-                                                    `--username=foo --password=bar`)"))
-      "clone")
-- TEMPLATE-USERNAME (except if specified in template arguments)
+Required arguments:
 
-Default values:
+        --clone
+                The base container to clone when creating testing containers.
 
-- PROJECT: `basename $PWD`
-- TEST-COMMAND: `make test`
+        --username
+                The username to use when connecting to the testing container.
+                This username must have a password-less SSH authentication.
 
-Overridable values: PROJECT, TEST-COMMAND, PREFIX, IGNORE-FILE, PROJECT-PATH
+Options:
 
-## To be done
+        --help
+                Shows this help.
 
-Personal todo on the project.
+        --version
+                Shows aergia's version.
 
-- Write tests.
-- Rewrite the README.
+        --default-shell
+                Default value: /bin/bash
+                Changes the default shell used to run commands.
+
+        --prefix
+                Default value: none
+                Adds a prefix to the remote project path.
+
+        --command
+                Default value: make test
+                Changes the commands to run the tests.
+
+        --ssh-identity
+                Default value: $HOME/.ssh/id_rsa
+                Changes the identity used to connect to the test containers.
+
+Online help: <https://github.com/Ralt/aergia>
+For complete documentation, run: man aergia
+```
+
+## Example session
+
+Here is how I usually run my tests after writing some code:
+
+```
+florian@florian:~/common-lisp/aergia$ sudo aergia --clone aergia --username ubuntu --prefix common-lisp
+Cloning aergia... done.
+Starting the short-lived container... done.
+Trying to get the short-lived container's IP.... done.
+Creating remote project folder... done.
+Synchronizing sources... done.
+Running tests...
+
+This is SBCL 1.2.3.debian, an implementation of ANSI Common Lisp.
+More information about SBCL is available at <http://www.sbcl.org/>.
+
+SBCL is free software, provided as is, with absolutely no warranty.
+It is mostly in the public domain; some portions are provided under
+BSD-style licenses.  See the CREDITS and COPYING files in the
+distribution for more information.
+To load "fiveam":
+  Install 2 Quicklisp releases:
+    alexandria fiveam
+; Fetching #<URL "http://beta.quicklisp.org/archive/alexandria/2014-08-26/alexandria-20140826-git.tgz">
+; 48.70KB
+==================================================
+49,872 bytes in 0.06 seconds (798.41KB/sec)
+; Fetching #<URL "http://beta.quicklisp.org/archive/fiveam/2013-11-11/fiveam-1.2.tgz">
+; 21.60KB
+==================================================
+22,116 bytes in 0.05 seconds (415.34KB/sec)
+; Loading "fiveam"
+[package alexandria.0.dev]........................
+[package it.bese.fiveam].............
+To load "aergia":
+  Load 1 ASDF system:
+    aergia
+; Loading "aergia"
+To load "external-program":
+  Install 1 Quicklisp release:
+    external-program
+; Fetching #<URL "http://beta.quicklisp.org/archive/external-program/2014-12-17/external-program-20141217-git.tgz">
+; 9.85KB
+==================================================
+10,082 bytes in 0.00 seconds (9845.70KB/sec)
+; Loading "external-program"
+[package external-program]..
+; Loading "aergia"
+To load "cl-ppcre":
+  Install 1 Quicklisp release:
+    cl-ppcre
+; Fetching #<URL "http://beta.quicklisp.org/archive/cl-ppcre/2014-12-17/cl-ppcre-2.0.9.tgz">
+; 155.87KB
+==================================================
+159,611 bytes in 0.47 seconds (328.15KB/sec)
+; Loading "cl-ppcre"
+[package cl-ppcre]................................
+............................
+; Loading "aergia"
+[package getopt]..................................
+[package anaphora]................................
+[package anaphora-basic]..........................
+[package anaphora-symbol].........................
+[package let-plus]................................
+[package cl-colors]...............................
+[package cl-ansi-text]............................
+[package aergia].
+; compiling file "/home/ubuntu/common-lisp/aergia/test/test-suites.lisp" (written 10 FEB 2015 07:48:11 PM):
+; compiling (DEFPACKAGE #:AERGIA-TEST ...)
+; compiling (IN-PACKAGE #:AERGIA-TEST)
+; compiling (IT.BESE.FIVEAM:DEF-SUITE AERGIA)
+; compiling (DEFMETHOD ASDF/ACTION:PERFORM ...)
+
+; /home/ubuntu/.cache/common-lisp/sbcl-1.2.3.debian-linux-x64/home/ubuntu/common-lisp/aergia/test/test-suites-TMP.fasl written
+; compilation finished in 0:00:00.005
+; compiling file "/home/ubuntu/common-lisp/aergia/test/aergia.lisp" (written 10 FEB 2015 07:48:11 PM):
+; compiling (IN-PACKAGE #:AERGIA-TEST)
+; compiling (IT.BESE.FIVEAM:IN-SUITE AERGIA)
+; compiling (IT.BESE.FIVEAM:TEST CAT ...)
+; compiling (IT.BESE.FIVEAM:TEST CAT-WITH-SPACES ...)
+; compiling (IT.BESE.FIVEAM:TEST GET-ARG ...)
+; compiling (IT.BESE.FIVEAM:TEST HAS-NONE-ARG ...)
+; compiling (IT.BESE.FIVEAM:TEST CLEAN-STARS ...)
+; compiling (IT.BESE.FIVEAM:TEST HELP ...)
+
+; /home/ubuntu/.cache/common-lisp/sbcl-1.2.3.debian-linux-x64/home/ubuntu/common-lisp/aergia/test/aergia-TMP.fasl written
+; compilation finished in 0:00:00.003
+
+Running test suite AERGIA
+ Running test CAT .
+ Running test CAT-WITH-SPACES .
+ Running test GET-ARG ..
+ Running test HAS-NONE-ARG .
+ Running test CLEAN-STARS .
+ Running test HELP .
+ Did 7 checks.
+    Pass: 7 (100%)
+    Skip: 0 ( 0%)
+    Fail: 0 ( 0%)
+
+
+Tests pass!
+
+Cleaning up the test containers... done.
+florian@florian:~/common-lisp/aergia$
+```
+
+## Installation
+
+- Download the sources and run `make && make install`. Only `sbcl` is
+  needed.
+- Download and install the [rpm
+  file](https://github.com/Ralt/aergia/releases/download/1.0.0/aergia-1.0.0-1.x86_64.rpm)
+  ([pgp signature](https://github.com/Ralt/aergia/releases/download/1.0.0/aergia_1.0.0-rpm.sig))
+  if you're on Fedora/CentOS/Red Hat (x86~64~ only)
+- Download and install the [deb
+  file](https://github.com/Ralt/aergia/releases/download/1.0.0/aergia_1.0.0_amd64.deb)
+  ([pgp signature](https://github.com/Ralt/aergia/releases/download/1.0.0/aergia_1.0.0-deb.sig))
+  if you're on Ubuntu/Debian (amd64 only)
+
+## More
+
+Either read the [online manual](manpage.md), or run `man aergia` for a
+more complete documentation.
+
+## License
+
+The code is licensed under the MIT license. See the [LICENSE](LICENSE) file.

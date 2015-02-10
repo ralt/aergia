@@ -13,9 +13,18 @@ SOURCES := $(wildcard src/*.lisp) $(wildcard *.asd)
 BUILDAPP = ./bin/buildapp
 TEST_SOURCES=$(shell find test/ -name '*.lisp')
 
-.PHONY: clean install release deb rpm test man
+.PHONY: clean install release deb rpm test man create-base-container aergia-test
 
 all: $(APP_OUT)
+
+create-base-container:
+	@lxc-create --name aergia \
+		--template ubuntu -- \
+		-S ~/.ssh/id_rsa.pub \
+		--packages make,sbcl
+
+aergia-test:
+	@aergia --clone aergia --username ubuntu --prefix common-lisp
 
 test: $(TEST_SOURCES) $(QL_LOCAL)/setup.lisp install-deps
 	@sbcl $(QL_OPTS) \
@@ -30,8 +39,14 @@ test: $(TEST_SOURCES) $(QL_LOCAL)/setup.lisp install-deps
 release:
 	make clean
 	make
+	make man
 	make deb
 	make rpm
+
+man:
+	mkdir -p dist/root/usr/share/man/man1/
+	pandoc -s -t man manpage.md > dist/root/usr/share/man/man1/$(APP_NAME).1
+	gzip dist/root/usr/share/man/man1/$(APP_NAME).1
 
 deb: $(APP_OUT)
 	@fpm -p dist/ \
@@ -49,6 +64,7 @@ rpm: $(APP_OUT)
 
 install: $(APP_OUT)
 	install $(APP_OUT) $(DESTDIR)/usr/bin
+	install -g 0 -o 0 -m 0644 dist/root/usr/share/man/man1/$(APP_NAME).1.gz /usr/share/man/man1/
 
 bin:
 	@mkdir bin

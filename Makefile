@@ -1,5 +1,4 @@
 APP_NAME=aergia
-VERSION=
 LISP_FILES=$(shell find . -name '*.lisp')
 ASDF_TREE ?= ~/quicklisp/
 DIST_FOLDER=dist/root/usr/bin
@@ -40,6 +39,9 @@ test: $(TEST_SOURCES) $(QL_LOCAL)/setup.lisp install-deps
 		--quit
 
 release:
+ifndef VERSION
+	$(error VERSION needs to be provided.)
+endif
 	make clean
 	make
 	make man

@@ -18,9 +18,12 @@ TEST_SOURCES=$(shell find test/ -name '*.lisp')
 all: $(APP_OUT)
 
 create-base-container:
+ifndef SSHKEY
+	$(error SSHKEY needs to be provided.)
+endif
 	@lxc-create --name aergia \
 		--template ubuntu -- \
-		-S ~/.ssh/id_rsa.pub \
+		-S $(SSHKEY) \
 		--packages make,sbcl
 
 aergia-test:

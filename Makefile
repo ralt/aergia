@@ -18,7 +18,7 @@ all: $(APP_OUT)
 
 create-base-container:
 ifndef SSHKEY
-	$(error SSHKEY needs to be provided.)
+	$(error SSHKEY needs to be provided. It must be the path to the public SSH key.)
 endif
 	@lxc-create --name aergia \
 		--template ubuntu -- \
@@ -26,7 +26,10 @@ endif
 		--packages make,sbcl
 
 aergia-test:
-	@aergia --clone aergia --username ubuntu --prefix common-lisp
+ifndef SSHKEY
+	$(error SSHKEY needs to be provided. It must be the path of the private SSH key.)
+endif
+	@aergia --clone aergia --username ubuntu --prefix common-lisp --ssh-identity $(SSHKEY)
 
 test: $(TEST_SOURCES) $(QL_LOCAL)/setup.lisp install-deps
 	@sbcl $(QL_OPTS) \

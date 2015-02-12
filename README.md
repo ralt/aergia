@@ -87,7 +87,7 @@ For complete documentation, run: man aergia
 Here is how I usually run my tests after writing some code:
 
 ```
-florian@florian:~/common-lisp/aergia$ SSHKEY=~/.ssh/id_rsa sudo aergia --clone aergia --username ubuntu --prefix common-lisp
+florian@florian:~/common-lisp/aergia$ sudo aergia --clone aergia --username ubuntu --prefix common-lisp
 Cloning aergia... done.
 Starting the short-lived container... done.
 Trying to get the short-lived container's IP.... done.

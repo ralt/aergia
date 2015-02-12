@@ -194,12 +194,12 @@ florian@florian:~/common-lisp/aergia$
 - Download the sources and run `make && make install`. Only `sbcl` is
   needed.
 - Download and install the [rpm
-  file](https://github.com/Ralt/aergia/releases/download/1.0.1/aergia-1.0.1-1.x86_64.rpm)
-  ([pgp signature](https://github.com/Ralt/aergia/releases/download/1.0.1/aergia_1.0.1-rpm.sig))
+  file](https://github.com/Ralt/aergia/releases/download/1.0.2/aergia-1.0.2-1.x86_64.rpm)
+  ([pgp signature](https://github.com/Ralt/aergia/releases/download/1.0.2/aergia_1.0.2-rpm.sig))
   if you're on Fedora/CentOS/Red Hat (x86~64~ only)
 - Download and install the [deb
-  file](https://github.com/Ralt/aergia/releases/download/1.0.1/aergia_1.0.1_amd64.deb)
-  ([pgp signature](https://github.com/Ralt/aergia/releases/download/1.0.1/aergia_1.0.1-deb.sig))
+  file](https://github.com/Ralt/aergia/releases/download/1.0.2/aergia_1.0.2_amd64.deb)
+  ([pgp signature](https://github.com/Ralt/aergia/releases/download/1.0.2/aergia_1.0.2-deb.sig))
   if you're on Ubuntu/Debian (amd64 only)
 
 ## More

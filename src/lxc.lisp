@@ -53,7 +53,7 @@
   (say "Synchronizing sources...")
   (clean-run
       (cat "There was an error synchronizing with " username "@" ip ".")
-    "scp" "-o" "StrictHostKeyChecking=no" "-i" ssh-identify "-r" "." (cat username "@" ip ":" (namestring project-remote-path)))
+    "scp" "-o" "StrictHostKeyChecking=no" "-i" ssh-identity "-r" "." (cat username "@" ip ":" (namestring project-remote-path)))
   (say-green " done.~%"))
 
 (defun lxc-run-tests (username ip project-remote-path ssh-identity command)

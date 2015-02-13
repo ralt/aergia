@@ -30,18 +30,18 @@
       (cl-ppcre:scan-to-strings
        "IP:\\s*(\\d+\\.\\d+\\.\\d+\\.\\d+)"
        (clean-run
-	   (cat "An error occured when getting information about " name ".")
-	 "lxc-info" "--name" name))
+           (cat "An error occured when getting information about " name ".")
+         "lxc-info" "--name" name))
     (declare (ignore _))
     ;; Leave enough time for:
     ;; - if the IP is found, for ssh to start
     ;; - if the IP is not found, for another trial
     (sleep 1)
     (if (> (length groups) 0)
-	(progn
-	  (say-green " done.~%")
-	  (elt groups 0))
-	(lxc-get-ip name (1+ acc)))))
+        (progn
+          (say-green " done.~%")
+          (elt groups 0))
+        (lxc-get-ip name (1+ acc)))))
 
 (defun lxc-synchronize-project (username ip project-remote-path ssh-identity)
   "Synchronizes the project sources with a defined folder in the container"
@@ -59,23 +59,35 @@
 (defun lxc-run-tests (username ip project-remote-path ssh-identity command)
   "Runs tests in a container"
   (say "Running tests...~%~%")
-  (multiple-value-bind (_ code)
-      (run *standard-output*
-	"ssh" "-o" "StrictHostKeyChecking=no" "-i" ssh-identity (cat username "@" ip) "cd" project-remote-path ";" command)
-    (declare (ignore _))
-    (if (= code 0)
-	(say-green "~%Tests pass!~%~%")
-	(leave (cat "~%Tests failure on " username "@" ip ":" (namestring project-remote-path) " with command \"" command "\"")))))
+  (let ((begin (get-universal-time)))
+    (multiple-value-bind (_ code)
+        (run *standard-output*
+             "ssh" "-o" "StrictHostKeyChecking=no" "-i" ssh-identity (cat username "@" ip) "cd" project-remote-path ";" command)
+      (declare (ignore _))
+      (if (= code 0)
+          (let ((end (get-universal-time)))
+            (say-green (cat "~%Tests pass! They took " (test-time begin end) ".~%~%")))
+          (leave (cat "~%Tests failure on " username "@" ip ":" (namestring project-remote-path) " with command \"" command "\""))))))
+
+(defun test-time (begin end)
+  "Returns the time taken to run the tests"
+  (let ((elapsed (- end begin)))
+    ;; Supports showing minutes instead of seconds, but don't bother
+    ;; to support more. Tests taking hours aren't worth it... If anyone
+    ;; thinks they are, PRs welcome.
+    (if (> elapsed 60)
+        (format nil "~D minutes and ~D seconds" (floor (/ elapsed 60)) (mod elapsed 60))
+        (format nil "~D seconds" elapsed))))
 
 (defun lxc-cleanup (name)
   "Finds all the test-NAME-* containers and destroy them"
   (say "Cleaning up the test containers...")
   (mapcar #'lxc-destroy
-	  (cl-ppcre:all-matches-as-strings
-	   (cat "test-" name "-\\d+")
-	   (clean-run
-	       "An error occured when trying to list containers."
-	     "lxc-ls")))
+          (cl-ppcre:all-matches-as-strings
+           (cat "test-" name "-\\d+")
+           (clean-run
+               "An error occured when trying to list containers."
+             "lxc-ls")))
   (say-green " done.~%"))
 
 (defun lxc-destroy (name)

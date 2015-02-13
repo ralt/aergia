@@ -183,7 +183,7 @@ Running test suite AERGIA
     Fail: 0 ( 0%)
 
 
-Tests pass!
+Tests pass! They took 10 seconds.
 
 Cleaning up the test containers... done.
 florian@florian:~/common-lisp/aergia$

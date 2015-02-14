@@ -73,7 +73,7 @@ rpm: $(APP_OUT)
 	@gpg --output dist/$(APP_NAME)_$(VERSION)-rpm.sig \
 		--detach-sig dist/$(APP_NAME)-$(VERSION)-1.x86_64.rpm
 
-install: $(APP_OUT)
+install: man $(APP_OUT)
 	install $(APP_OUT) $(DESTDIR)/usr/bin
 	install -g 0 -o 0 -m 0644 dist/root/usr/share/man/man1/$(APP_NAME).1.gz /usr/share/man/man1/
 

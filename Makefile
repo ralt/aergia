@@ -11,6 +11,7 @@ LISP ?= sbcl
 SOURCES := $(wildcard src/*.lisp) $(wildcard *.asd)
 BUILDAPP = ./bin/buildapp
 TEST_SOURCES=$(shell find test/ -name '*.lisp')
+WITH_DOCS ?= 1
 
 .PHONY: clean install release deb rpm test man create-base-container aergia-test
 
@@ -52,9 +53,11 @@ endif
 	make rpm
 
 man:
+ifeq ($(WITH_DOCS),1)
 	mkdir -p dist/root/usr/share/man/man1/
 	pandoc -s -t man manpage.md > dist/root/usr/share/man/man1/$(APP_NAME).1
 	gzip dist/root/usr/share/man/man1/$(APP_NAME).1
+endif
 
 deb: $(APP_OUT)
 	@fpm -p dist/ \

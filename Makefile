@@ -75,7 +75,9 @@ rpm: $(APP_OUT)
 
 install: man $(APP_OUT)
 	install $(APP_OUT) $(DESTDIR)/usr/bin
+ifeq ($(WITH_DOCS),1)
 	install -g 0 -o 0 -m 0644 dist/root/usr/share/man/man1/$(APP_NAME).1.gz /usr/share/man/man1/
+endif
 
 bin:
 	@mkdir bin

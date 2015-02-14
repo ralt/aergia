@@ -1,7 +1,7 @@
 APP_NAME=aergia
 LISP_FILES=$(shell find . -name '*.lisp')
 ASDF_TREE ?= ~/quicklisp/
-DIST_FOLDER=dist/root/usr/bin
+DIST_FOLDER ?= dist/root/usr/bin
 APP_OUT=$(DIST_FOLDER)/aergia
 QL_LOCAL=$(PWD)/.quicklocal/quicklisp
 QUICKLISP_SCRIPT=http://beta.quicklisp.org/quicklisp.lisp
